@@ -371,8 +371,8 @@ library(vegan) # Ecological analysis
 source(paste0(github_repo, 'rlibs/ilrDefinition.R')) # custom script for balance names
 
 # Load data
-fictveg <- read.table(paste0(github_repo, "tables/fictive_veggies"), sep=";", dec=".", header=TRUE)
-sbpveg <- read.table(paste0(github_repo, "tables/sbpVeggies"), sep=";", dec=".", header=TRUE)
+fictveg <- read.table(paste0(github_repo, "tables/fictive_veggies"), sep=",", dec=".", header=TRUE)
+sbpveg <- read.table(paste0(github_repo, "tables/sbpVeggies"), sep=",", dec=".", header=TRUE)
 
 # Format compositions
 compveg <- acomp(fictveg[,-c(1,2)])
