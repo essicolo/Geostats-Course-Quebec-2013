@@ -11,7 +11,7 @@ Compositional data (CoDa) are intrinsically multivariate data assembled in vecto
 
 The closure operation, C, computes the constant sum assignment, as follows.
 
-<a href="http://www.codecogs.com/eqnedit.php?latex=S^{D} = C(c_1, c_2, ..., c_D) = [\tfrac{c_1 \kappa }{\sum_{i=1}^{D}c_i}, \tfrac{c_2 \kappa }{\sum_{i=1}^{D}c_i}, ..., \tfrac{c_D \kappa }{\sum_{i=1}^{D}c_i} ]" target="_blank"><img src="http://latex.codecogs.com/gif.latex?S^{D} = C(c_1, c_2, ..., c_D) = [\tfrac{c_1 \kappa }{\sum_{i=1}^{D}c_i}, \tfrac{c_2 \kappa }{\sum_{i=1}^{D}c_i}, ..., \tfrac{c_D \kappa }{\sum_{i=1}^{D}c_i} ]" title="S^{D} = C(c_1, c_2, ..., c_D) = [\tfrac{c_1 \kappa }{\sum_{i=1}^{D}c_i}, \tfrac{c_2 \kappa }{\sum_{i=1}^{D}c_i}, ..., \tfrac{c_D \kappa }{\sum_{i=1}^{D}c_i} ]" /></a>
+$$S^{D} = C(c_1, c_2, ..., c_D) = \left[ \tfrac{c_1 \kappa }{\sum_{i=1}^{D}c_i}, \tfrac{c_2 \kappa }{\sum_{i=1}^{D}c_i}, ..., \tfrac{c_D \kappa }{\sum_{i=1}^{D}c_i} \right]$$
 
 CoDa have particular and important numerical properties and should be handled with care. Not convinced? Let's have a look at personal expenditures in the United States, in billions of $.
 
@@ -87,7 +87,7 @@ Fortunately, since John Aitchison published a book dedicated to CoDa in 1986, th
 
 The *alr* is a log-ratio between a component and a reference component *c^D*.
 
-<a href="http://www.codecogs.com/eqnedit.php?latex=alr_j = ln \tfrac{c_i}{c_D} \: for \: j=1,2,...,D-1" target="_blank"><img src="http://latex.codecogs.com/gif.latex?alr_j = ln \tfrac{c_i}{c_D} \: for \: j=1,2,...,D-1" title="alr_j = ln \tfrac{c_i}{c_D} \: for \: j=1,2,...,D-1" /></a>
+$$alr_j = ln \tfrac{c_i}{c_D} \: for \: j=1,2,...,D-1$$
 
 The reference component can be selected arbitrary or in order to create an interpretable set of ratios. The choice of the selected component does not influence the results of linear statistics. However, it should be noted that *alr* variables are oblique to each other. Accordingly, distance-based analyses on *alrs* (PCoA, clustering, etc.) should be used with care.
 
@@ -95,7 +95,7 @@ The reference component can be selected arbitrary or in order to create an inter
 
 The *clr* is a log-ratio between a component and the geometric mean of all components.
 
-<a href="http://www.codecogs.com/eqnedit.php?latex=clr_i = ln \tfrac{c_i}{g(c)} \: for \: i=1,2,...,D" target="_blank"><img src="http://latex.codecogs.com/gif.latex?clr_i = ln \tfrac{c_i}{g(c)} \: for \: i=1,2,...,D" title="clr_i = ln \tfrac{c_i}{g(c)} \: for \: i=1,2,...,D" /></a>
+$$clr_i = ln \tfrac{c_i}{g(c)} \: for \: i=1,2,...,D$$
 
 The sum of each *clr* row equals to zero, inducing several singularity issues. Moreover, *D* components generates *D* *clrs*, so *clrs* are not straight-forwardly interpretable variables (Aitchison and Greenacre, 2002).
 
@@ -136,7 +136,7 @@ Different SBPs will cause some discrepancies in geostatistics when variograms ar
 
 To establish contrast orthogonality, it is necessary to imbed subcompositions into larger ones and assign orthogonal coefficients to each log-ratio contrast (Egozcue et al., 2003). The *ilr* is computed as follows (Egozcue and Pawlowsky-Glahn, 2005):
 
-<a href="http://www.codecogs.com/eqnedit.php?latex=ilr_j = \sqrt{\frac{n_j^@plus;\cdot n_j^-}{n_j^@plus;@plus;n_j^-}} ln \tfrac{g(c_j^@plus;)}{g(c_j^-)} \: for \: j=1,2,...,D-1" target="_blank"><img src="http://latex.codecogs.com/gif.latex?ilr_j = \sqrt{\frac{n_j^+\cdot n_j^-}{n_j^++n_j^-}} ln \tfrac{g(c_j^+)}{g(c_j^-)} \: for \: j=1,2,...,D-1" title="ilr_j = \sqrt{\frac{n_j^+\cdot n_j^-}{n_j^++n_j^-}} ln \tfrac{g(c_j^+)}{g(c_j^-)} \: for \: j=1,2,...,D-1" /></a>
+$$ilr_j = \sqrt{\frac{n_j^+ \cdot n_j^-}{n_j^+ + n_j^-}} ln \tfrac{g(c_j^+)}{g(c_j^-)} \: for \: j=1,2,...,D-1$$
 
 Where *ilr_j* is the *j*^th isometric log-ratio; the square root is the orthogonal coefficient of the *j*^th balance (or log contrast) designed in the SBP; r and s represent the number of parts in the (+1) and (–1) subcompositions on each side of the jth balance, respectively; g(c+) is the geometric mean of components in group c+; and g(c-) is the geometric mean of components in group c-. The partition between two components or groups of components can be presented as [S- | S+].
 
@@ -437,7 +437,7 @@ Geostatistical analyses often imply compositional data: chemical concentrations 
 
 In order to free compositions from arbitrary SBPs, Tolosana-Delgado et al. (2011) highlighted the need for *mutual consistency* between variogram models. This can be achieved by the use of variation-variograms defined across the variance of log-ratios of components, as follows:
 
-<a href="http://www.codecogs.com/eqnedit.php?latex=\tau_{ij}(\vec{h}) = Var\left [ ln \tfrac{Z_{i}(x@plus;\vec{h})}{Z_{j}(x@plus;\vec{h})}-ln\tfrac{Z_{i}(x)}{Z_{j}(x)} \right ]" target="_blank"><img src="http://latex.codecogs.com/gif.latex?\tau_{ij}(\vec{h}) = Var\left [ ln \tfrac{Z_{i}(x+\vec{h})}{Z_{j}(x+\vec{h})}-ln\tfrac{Z_{i}(x)}{Z_{j}(x)} \right ]" title="\tau_{ij}(\vec{h}) = Var\left [ ln \tfrac{Z_{i}(x+\vec{h})}{Z_{j}(x+\vec{h})}-ln\tfrac{Z_{i}(x)}{Z_{j}(x)} \right ]" /></a>
+$$\tau_{ij}(\vec{h}) = Var\left [ ln \tfrac{Z_{i}(x+\vec{h})}{Z_{j}(x+\vec{h})}-ln\tfrac{Z_{i}(x)}{Z_{j}(x)} \right ]$$
 
 Variation-variograms create *D* X *D* variograms of log ratios.
 
