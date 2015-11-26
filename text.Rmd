@@ -25,20 +25,20 @@ cor(expends1)
 
 Now, the correlation between expenditures as ratio on total measured expenditures.
 ```{r}
-expends2 <- expends1/rowSums(expends1)
+expends2 <- expends1 / rowSums(expends1)
 cor(expends2)
 ```
 
 And the correlation between expenditures as ratio, excluding "Food and Tobacco"" as well as "Household Operation".
 ```{r}
-expends3 <- expends1[,3:5]/rowSums(expends1[,3:5])
+expends3 <- expends1[, 3:5] / rowSums(expends1[, 3:5])
 cor(expends3)
 ```
 
 And so on...
 
 ```{r}
-expends4 <- expends1[,c(3,5)]/rowSums(expends1[,c(3,5)])
+expends4 <- expends1[, c(3,5)] / rowSums(expends1[, c(3,5)])
 cor(expends4)
 ```
 
@@ -47,25 +47,26 @@ Now, the correlation is perfect. Indeed, if on increase by a certain fraction, t
 The following table shows the correlation between "Private Education"" and "Medical and Health".
 
 ```{r}
-data.frame(D=c(5, 5, 4, 3, 2), Closure=c("Unclosed", "Closed", "Closed", "Closed", "Closed"),
-           Correlation=c(cor(expends1)[5,3],
-                         cor(expends2)[5,3],
-                         cor(expends1[,2:5]/rowSums(expends1[,2:5]))[4,2],
-                         cor(expends3)[1,3],
-                         cor(expends4)[2,1]))
+data.frame(D = c(5, 5, 4, 3, 2), 
+           Closure = c("Unclosed", "Closed", "Closed", "Closed", "Closed"),
+           Correlation = c(cor(expends1)[5, 3],
+                           cor(expends2)[5, 3],
+                           cor(expends1[, 2:5] / rowSums(expends1[, 2:5]))[4, 2],
+                           cor(expends3)[1, 3],
+                           cor(expends4)[2, 1]))
 ```
 
 The correlation depends on the basis we assume as analysts: total family expenses, home expenses, parental expenses, etc. Same data, different scales, retuning different correlations. This is what Pearson (1897) named **spurious correlations**. Ordinary log transformations would not correct the problem (try it!). Why? Because CoDa essentially convey relative information, and the constant sum forces at least one correlation coefficient to be negative. For example, in particle-size analysis, if sand increases, at least one of silt or clay **must** decrease, as can be observed in a ternary diagram.
 
 ```{r}
 library(soiltexture)
-TT.plot( class.sys = "USDA.TT" )
+TT.plot(class.sys = "USDA.TT")
 ```
 
 That is why the Canadian soil texture classification drops the silt part, which can be computed by subtracting sand and clay from 100%.
 
 ```{r}
-TT.plot( class.sys = "CA.EN.TT" )
+TT.plot(class.sys = "CA.EN.TT")
 ```
 
 So, in addition to scale dependency, CoDa contain redundant information. In a simplex of *D* components, one component can be computed by subtracting the sum of the others from the constant sum. Accordingly, the simplex contains *D*-1 degrees of freedom.
@@ -105,7 +106,7 @@ Ilrs can be based on a special device of balances or linearly independent ratios
 For example,
 
 ```{r SBP1, results='asis', echo=FALSE}
-df <- data.frame(Sand=c(1,1), Silt=c(1,-1), Clay=c(-1,0))
+df <- data.frame(Sand=c(1, 1), Silt=c(1, -1), Clay=c(-1, 0))
 cat("Sand | Silt | Clay", "--- | --- | ---", sep="\n")
 cat(apply(df, 1, function(X) paste(X, collapse=" | ")), sep = "\n")
 ```
@@ -113,13 +114,13 @@ cat(apply(df, 1, function(X) paste(X, collapse=" | ")), sep = "\n")
 Or
 
 ```{r SBP2, results='asis', echo=FALSE}
-df <- data.frame(N=c(1,1,1,0,1),
-                 P=c(1,1,-1,0,1),
-                 K=c(1,-1,0,0,1),
-                 Ca=c(-1,0,0,1,1),
-                 Mg=c(-1,0,0,-1,1),
-                 Fv=c(0,0,0,0,-1))
-cat("N | P | K | Ca | Mg | Fv", "--- | --- | --- | --- | --- | ---", sep="\n")
+df <- data.frame(N  = c( 1, 1, 1, 0, 1),
+                 P  = c( 1, 1,-1, 0, 1),
+                 K  = c( 1,-1, 0, 0, 1),
+                 Ca = c(-1, 0, 0, 1, 1),
+                 Mg = c(-1, 0, 0,-1, 1),
+                 Fv = c( 0, 0, 0, 0,-1))
+cat("N | P | K | Ca | Mg | Fv", "--- | --- | --- | --- | --- | ---", sep = "\n")
 cat(apply(df, 1, function(X) paste(X, collapse=" | ")), sep = "\n")
 ```
 
@@ -191,11 +192,11 @@ We aim to explore hydrogeochemical data by plotting a ternary diagram and comput
 ```{r}
 library("compositions") # load compositions module
 data(Hydrochem) # load R dataset
-hydData <- Hydrochem[,c("Cl","SO4","HCO3")] # select only 3 columns
+hydData <- Hydrochem[, c("Cl", "SO4", "HCO3")] # select only 3 columns
 Composition <- acomp(hydData) # close the simplex and decalre that hydData is of compositional data class
-plot(Composition, col= Hydrochem$River) # ternary diagram, colors according to the river
-isoPortionLines(by=0.2, lwd=0.2) # grid
-isoProportionLines(by = 0.5, lwd=0.5, labs=FALSE) # isoproportion lines
+plot(Composition, col = Hydrochem$River) # ternary diagram, colors according to the river
+isoPortionLines(by = 0.2, lwd = 0.2) # grid
+isoProportionLines(by = 0.5, lwd = 0.5, labs = FALSE) # isoproportion lines
 ```
 
 We have declared that the matrix Composition is a compositional dataset.
@@ -213,7 +214,7 @@ mean(Composition) # mean
 To avoid losing the acomp class when an acomp matrix is subsetted, the acomp function should be called again.
 
 ```{r}
-mean(acomp(Composition[Hydrochem$River=="Cardener",]))
+mean(acomp(Composition[Hydrochem$River == "Cardener", ]))
 ```
 
 One might transform the CoDa in *alr*, compute the desired statistics, then backtransform statistics from *alrs* to compositions.
@@ -229,15 +230,16 @@ As said, *ilrs* needs an SBP. If no SBP is specified, R will generate one automa
 The SBP can be written in csv, then loaded to R.
 
 ```{r}
-sbp1 <- read.table("sbp1.csv", header=TRUE, sep=";", dec=".")
+github_repo <- "https://raw.githubusercontent.com/essicolo/Geostats-Course-Quebec-2013/master/"
+sbp1 <- read.table(paste0(github_repo, "tables/sbp3comp.csv"), header = FALSE, sep = ",", dec = ".")
 ```
 
 You have to transform your SBP into an orthogonal basis (V), which is used as argument in the ilr function. The last line of the following block generates a compositional dendrogram.
 
 ```{r}
-V1<-gsi.buildilrBase(t(sbp1))
-balances1<-ilr(Composition, V=V1)
-CoDaDendrogram(Composition, V=V1)
+V1 <- gsi.buildilrBase(t(sbp1))
+balances1 <- ilr(Composition, V = V1)
+CoDaDendrogram(Composition, V = V1)
 ```
 
 The compositional dendrogram is read as follows.
@@ -249,9 +251,9 @@ The compositional dendrogram is read as follows.
 Here is a more complex dendrogran.
 
 ```{r}
-sbp2<-read.table("http://ubuntuone.com/7KFN8qJgfsOadpQuwfIZZE", header=TRUE, sep=";", dec=".")
-V2<-gsi.buildilrBase(t(sbp2))
-CoDaDendrogram(acomp(Hydrochem[,6:19]), V=V2)
+sbpHydrochem <- read.table(paste0(github_repo, "tables/sbpHydrochem.csv"), header = TRUE, sep = ",", dec = ".")
+V2 <- gsi.buildilrBase(t(sbpHydrochem))
+CoDaDendrogram(acomp(Hydrochem[, 6:19]), V = V2)
 ```
 
 # CoDa linear regressions
@@ -279,22 +281,22 @@ legend(x=65, y=80, legend=c("Sand", "Silt", "Clay"), pch=c(21,22,23), pt.bg=c(2,
 The relation is obviously not linear, at least not in the compositional representation. At first sight, one could apply on each of these particle-size class a Weibull model, a growth to saturation model or a third degree polynomial model. However, these regression would be applied on non-normal data, would allow total contents to take values more or less than 100%, and would not account for interrelations between particle-size classes. A solution is to perform the regression across the associated *ilr* coordinates of the composition:
 
 ```{r}
-comp<-acomp(ArcticLake[,1:3]) # close the simplex across column 1 to 3
-balances<-ilr(comp) # create balances with defaut SBP
-depth<-ArcticLake[,4] # depth vector: column 4
+comp <- acomp(ArcticLake[, 1:3]) # close the simplex across column 1 to 3
+balances <- ilr(comp) # create balances with defaut SBP
+depth <- ArcticLake[, 4] # depth vector: column 4
 ```
 
 Our balances being created, we can explore them. In our case, the log_10 of depth is used as explanatory variable:
 
 ```{r}
-plot(y=log10(depth), x=balances[,1], xlim=c(-4,3), pch=24, bg=5)
-points(y=log10(depth), x=balances[,2], pch=25, bg=6)
+plot(y = log10(depth), x = balances[, 1], xlim = c(-4, 3), pch = 24, bg = 5)
+points(y = log10(depth), x=balances[, 2], pch = 25, bg = 6)
 ```
 
 We can use a linear model for balances against log10 of depth using the lm function:
 
 ```{r}
-ilr.lm<-lm(balances~log10(depth))
+ilr.lm <- lm(balances ~ log10(depth))
 coefficients(ilr.lm)
 summary(ilr.lm)
 ```
@@ -309,54 +311,54 @@ At a 0.05 level, we reject the null hypotheses for the origin and the slope for 
 And the prediction:
 
 ```{r}
-plot(x=balances[,1],y=log10(depth), xlim=c(-4,3), pch=24, bg=5)
-points(x=balances[,2],y=log10(depth), pch=25, bg=6)
-lines(x=predict(ilr.lm)[,1], y=log10(depth), lwd=2, col=5)
+plot(x = balances[, 1], y = log10(depth), xlim = c(-4, 3), pch = 24, bg = 5)
+points(x = balances[, 2],y = log10(depth), pch = 25, bg = 6)
+lines(x = predict(ilr.lm)[, 1], y = log10(depth), lwd = 2, col = 5)
 lines(x=predict(ilr.lm)[,2], y=log10(depth), lwd=2, col=6)
 ```
 
 The coefficients are shown as *ilrs*. They can be ported to the simplex by inverting the ilr transformation.
 
 ```{r}
-coefficients<-ilrInv(coef(ilr.lm))
-intercept<-acomp(coefficients[1,]) #intercept (perturbation)
-pente<-acomp(coefficients[2,]) #log(depth) (powering)
+coefficients <- ilrInv(coef(ilr.lm))
+intercept <- acomp(coefficients[1, ]) #intercept (perturbation)
+pente <- acomp(coefficients[2, ]) #log(depth) (powering)
 ```
 
 As said previously, when a vector belongs to the acomp class, + and * operators are used for perturbation ⊕ and powering ⊗.
 
 ```{r}
-logDepthPred<-log10(1:500) # generate a depth vector
-compPred<-intercept+pente*logDepthPred # compute pert. and pow. for the linear relation
+logDepthPred <- log10(1:500) # generate a depth vector
+compPred <- intercept + pente * logDepthPred # compute pert. and pow. for the linear relation
 ```
 
 Note that to avoid the use of ⊕ and ⊗, the analyst could compute the ilr prediceted lines, then backtransform the predictions to compisitions:
 
 ```{r}
-ilr1Pred<-coef(ilr.lm)[1,1]+coef(ilr.lm)[2,1]*logDepthPred
-ilr2Pred<-coef(ilr.lm)[1,2]+coef(ilr.lm)[2,2]*logDepthPred
-ilrPred<-data.frame(ilr1Pred,ilr2Pred)
-compPred<-ilrInv(ilrPred)
+ilr1Pred <- coef(ilr.lm)[1, 1]+coef(ilr.lm)[2, 1] * logDepthPred
+ilr2Pred <- coef(ilr.lm)[1,2] + coef(ilr.lm)[2, 2] * logDepthPred
+ilrPred <- data.frame(ilr1Pred, ilr2Pred)
+compPred <- ilrInv(ilrPred)
 ```
 
 The regression can be presented in percentages versus depth or in the ternary diagram:
 
 ```{r}
 # % versus depth
-plot(y=depth, x=comp[,1]*100, ylab="Depth (m)", xlab="%", pch=21,
-     bg=2, ylim=c(110,0), xlim=c(0,100))
-points(y=depth, x=comp[,2]*100, pch=22, bg=3)
-points(y=depth, x=comp[,3]*100, pch=23, bg=4)
-lines(y=10^logDepthPred, x=compPred[,1]*100, col=2)
-lines(y=10^logDepthPred, x=compPred[,2]*100, col=3)
-lines(y=10^logDepthPred, x=compPred[,3]*100, col=4)
+plot(y = depth, x = comp[, 1] * 100, ylab = "Depth (m)", xlab = "%", pch = 21,
+     bg = 2, ylim = c(110,0), xlim = c(0,100))
+points(y = depth, x = comp[,2] * 100, pch = 22, bg = 3)
+points(y = depth, x = comp[,3] * 100, pch = 23, bg = 4)
+lines(y = 10^logDepthPred, x = compPred[, 1] * 100, col = 2)
+lines(y = 10^logDepthPred, x = compPred[, 2] * 100, col = 3)
+lines(y = 10^logDepthPred, x = compPred[, 3] * 100, col = 4)
 grid()
 legend(y=50, x=60, legend=c("Sand", "Silt", "Clay"), pch=21:23,
        pt.bg=c(2,3,4), cex=0.8)
  
 # ternary diagram
-plot(comp, pch=21, bg=7) # points
-lines(compPred, col=3, lwd=2) # linear regression
+plot(comp, pch = 21, bg = 7) # points
+lines(compPred, col = 3, lwd = 2) # linear regression
 isoPortionLines()
 ```
 
@@ -366,11 +368,11 @@ As said, *ilrs* are orthogonal variables suited for distance-based analyses. For
 ```{r}
 library(compositions) # CoDa analysis
 library(vegan) # Ecological analysis
-source("http://ubuntuone.com/6Uh8qUI2W2szH5TBkCHqXg") # custom script for balance names
+source(paste0(github_repo, 'rlibs/ilrDefinition.R')) # custom script for balance names
 
 # Load data
-fictveg <- read.table("http://ubuntuone.com/5dylj9DpiN47MlvDYtaxGW", sep=";", dec=".", header=TRUE)
-sbpveg <- read.table("http://ubuntuone.com/5nOgHZoFGgg9o1RWkhg02u", sep=";", dec=".", header=TRUE)
+fictveg <- read.table(paste0(github_repo, "tables/fictive_veggies"), sep=";", dec=".", header=TRUE)
+sbpveg <- read.table(paste0(github_repo, "tables/sbpVeggies"), sep=";", dec=".", header=TRUE)
 
 # Format compositions
 compveg <- acomp(fictveg[,-c(1,2)])
