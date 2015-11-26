@@ -371,14 +371,15 @@ library(vegan) # Ecological analysis
 source(paste0(github_repo, 'rlibs/ilrDefinition.R')) # custom script for balance names
 
 # Load data
-fictveg <- read.table(paste0(github_repo, "tables/fictive_veggies"), sep=",", dec=".", header=TRUE)
-sbpveg <- read.table(paste0(github_repo, "tables/sbpVeggies"), sep=",", dec=".", header=TRUE)
+fictveg <- read.table(paste0(github_repo, "tables/fictive_veggies.csv"), sep=",", dec=".", header=TRUE)
+sbpveg <- read.table(paste0(github_repo, "tables/sbpVeggies.csv"), sep=",", dec=".", header=TRUE)
 
 # Format compositions
-compveg <- acomp(fictveg[,-c(1,2)])
+Fv <- 100 - apply(fictveg[, -c(1, 2)], 1, sum) # compute the filling value
+compveg <- acomp(cbind(fictveg[, -c(1, 2)], Fv))
 plot(compveg)
-balveg <- ilr(compveg, V=gsi.buildilrBase(t(sbpveg))) # compute the ilrs according to the orthonormal basis
-CoDaDendrogram(compveg, V=gsi.buildilrBase(t(sbpveg))) # plot the dendrogram to visualise balances
+balveg <- ilr(compveg, V = gsi.buildilrBase(t(sbpveg))) # compute the ilrs according to the orthonormal basis
+CoDaDendrogram(compveg, V = gsi.buildilrBase(t(sbpveg))) # plot the dendrogram to visualise balances
 ilrDef <- ilrDefinition(sbpveg, side="-+")
 colnames(balveg) <- ilrDef
 
@@ -450,56 +451,57 @@ library(compositions) # for CoDa analysis
 library(ggplot2) # Fancy plots
 ## Multiplot script: to plot multiple ggplots in a grid
 ### http://www.cookbook-r.com/Graphs/Multiple_graphs_on_one_page_%28ggplot2%29/
-source("http://ubuntuone.com/2kvV9Vrlkr1uZg7DNFMH13") 
+source(paste0(github_repo, 'rlibs/multiplot.R')) 
 ```
 
 ### Load data
 ```{r}
 data(juraset)
-coords <- with(juraset, cbind(X,Y)) # isolate spatial coordinates
+coords <- with(juraset, cbind(X, Y)) # isolate spatial coordinates
 ```
 
 ### 1. Compositional data formatting
 ```{r}
-Fv <- 1e6-rowSums(juraset[,5:8]) # compute a filling value in order to be able to recover original scale
-comp <- acomp(cbind(juraset[,5:8], Fv)) # close the simplex and append an acomp class
+Fv <- 1e6-rowSums(juraset[, 5:8]) # compute a filling value in order to be able to recover original scale
+comp <- acomp(cbind(juraset[, 5:8], Fv)) # close the simplex and append an acomp class
 plot(comp) # plot ternary diagrams
 ```
 
 ### 2. Variogram estimation
 ```{r}
-lrv <- logratioVariogram(comp,coords,maxdist=1,nbins=10)
+lrv <- logratioVariogram(comp, coords, maxdist=1, nbins=10)
 plot(lrv)
 ```
 
 ### 3. Definition of a formula that describes the model that you want to fit
 ```{r}
-vgModel <- CompLinModCoReg(~nugget()+exp(0.5), comp)
+vgModel <- CompLinModCoReg(~nugget() + exp(0.5), comp)
 ```
 
 
 ### 4. Fitting the variogram parameters
 ```{r}
-fit <- vgmFit2lrv(lrv, vgModel, iterlim=500) # Increase the max number of iterations with iterlim
+fit <- vgmFit2lrv(lrv, vgModel, iterlim = 500) # Increase the max number of iterations with iterlim
 # vgmFit is deprecate, but still computes faster than vgmFit2lrv: 
 # fit <- vgmFit(lrv,vgModel)
-plot(lrv,lrvg=vgram2lrvgram(fit$vg))
+plot(lrv, lrvg = vgram2lrvgram(fit$vg))
 ```
 
 ### 5. Applying cokriging to the data
 ```{r}
-coordsNew <- expand.grid(x=seq(from=0, to=6, length=50), y=seq(from=0, to=6, length=50)) ## define grid
-krig <- compOKriging(comp, coords, coordsNew, fit$vg, err=FALSE) ## Kriging
+coordsNew <- expand.grid(x = seq(from = 0, to = 6, length = 50),
+                         y = seq(from = 0, to = 6, length = 50)) ## define grid
+krig <- compOKriging(comp, coords, coordsNew, fit$vg, err = FALSE) ## Kriging
 ```
 
 ### 6. Plot the contours
 ```{r , fig.width=11, fig.height=6}
 p <- list()
 for (i in 1:ncol(krig$Z)) {
-  ggdata <- data.frame(krig$X, value=krig$Z[,i])
-  p[[i]] <- ggplot(ggdata, aes(x=x, y=y, z = value)) +
+  ggdata <- data.frame(krig$X, value = krig$Z[, i])
+  p[[i]] <- ggplot(ggdata, aes(x = x, y = y, z = value)) +
     geom_tile(aes(fill = value)) +
-    stat_contour(lwd=0.2) +
+    stat_contour(lwd = 0.2) +
     #geom_point(data=juraset, aes(x=X, y=Y, z=0, colour=Rock), pch=4, size=1) +
     ggtitle(paste(colnames(krig$Z)[i],"concentration")) +
     xlab("X - coordinate") +
@@ -517,44 +519,47 @@ Let's have another go with the famous Meuse dataset.
 
 ```{r , fig.width=11, fig.height=6}
 library(gstat)
+library(sp)
 data(meuse)
 data(meuse.riv)
 
 library(compositions) # for CoDa analysis
 library(ggplot2) # Fancy plots
-source("http://ubuntuone.com/2kvV9Vrlkr1uZg7DNFMH13") # multiplot
+## Multiplot script: to plot multiple ggplots in a grid
+### http://www.cookbook-r.com/Graphs/Multiple_graphs_on_one_page_%28ggplot2%29/
+source(paste0(github_repo, 'rlibs/multiplot.R')) 
 
-coords <- with(meuse, cbind(x,y))
+coords <- with(meuse, cbind(x, y))
 
-Fv <- 1e6-rowSums(meuse[,3:6])
-comp <- acomp(cbind(meuse[,3:6], Fv))
+Fv <- 1e6 - rowSums(meuse[, 3:6])
+comp <- acomp(cbind(meuse[, 3:6], Fv))
 
-lrv <- logratioVariogram(comp, coords, maxdist=500, nbins=10)
+lrv <- logratioVariogram(comp, coords, maxdist = 500, nbins = 10)
 plot(lrv)
 
-vgModel <- CompLinModCoReg(~nugget()+sph(100), comp)
+vgModel <- CompLinModCoReg(~nugget() + sph(100), comp)
 
-fit <- vgmFit2lrv(lrv, vgModel, iterlim=500)
-plot(lrv,lrvg=vgram2lrvgram(fit$vg))
+fit <- vgmFit2lrv(lrv, vgModel, iterlim = 500)
+plot(lrv, lrvg = vgram2lrvgram(fit$vg))
 
-coordsNew <- expand.grid(x=seq(from=min(coords[,1]), to=max(coords[,1]), length=50),
-                         y=seq(from=min(coords[,2]), to=max(coords[,2]), length=50))
-krig <- compOKriging(comp, coords, coordsNew, fit$vg, err=FALSE) ## Kriging
+coordsNew <- expand.grid(x = seq(from = min(coords[, 1]), to = max(coords[, 1]), length = 50),
+                         y = seq(from = min(coords[, 2]), to = max(coords[, 2]), length = 50))
+krig <- compOKriging(comp, coords, coordsNew, fit$vg, err = FALSE) ## Kriging
 
 meuse.riv2 <- as.data.frame(meuse.riv)
 colnames(meuse.riv2) <- c("x", "y")
 
-meuse.riv3 <- meuse.riv2[meuse.riv2[,2] > min(coords[,2])-200 & meuse.riv2[,2] < max(coords[,2])+200,]
+meuse.riv3 <- meuse.riv2[meuse.riv2[, 2] > min(coords[, 2]) - 200 & meuse.riv2[, 2] < max(coords[, 2]) + 200,]
 
 p <- list()
 for (i in 1:ncol(krig$Z)) {
   ggdata <- data.frame(krig$X, value=krig$Z[,i])
   p[[i]] <- ggplot(ggdata, aes(x=x, y=y, z = value)) +
     geom_tile(aes(fill = value)) +
-    stat_contour(lwd=0.2) +
-    geom_point(data=meuse, aes(x=x, y=y, z=0), pch=4, size=1) +
-    geom_polygon(data=meuse.riv3, aes(x=x, y=y, z=0), fill="grey15", alpha=0.5) +
-    ggtitle(paste(colnames(krig$Z)[i],"concentration")) +
+    stat_contour(lwd = 0.2) +
+    geom_point(data = meuse, aes(x = x, y = y, z = 0), pch = 4, size = 1) +
+    geom_polygon(data = meuse.riv3, aes(x = x, y = y, z = 0), fill = "grey15", alpha = 0.5) +
+    ggtitle(paste(colnames(krig$Z)[i], "concentration")) +
     xlab("X - coordinate") +
     ylab("Y - coordinate") +
     coord_equal() +
